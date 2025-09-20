@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Switch Case Interaction</title>
+<style>
+  body {
+    background: black;
+    color: #00ff99;
+    text-align: center;
+    font-family: monospace;
+    padding: 20px;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    overflow: hidden;
+  }
+
+  .input-area {
+    margin-top: 20px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 15px;
+    width: 100%;
+    max-width: 500px; /* wider limit for desktop */
+  }
+
+  input[type="text"] {
+    padding: 20px;  
+    font-size: 32px;
+    border: none;
+    outline: none;
+    border-radius: 5px;
+    background: #111;
+    color: #00ff99;
+    flex: 1;
+    min-width: 200px;  
+    max-width: 100%;   
+    text-align: left;
+  }
+
+  button {
+    padding: 20px 30px;
+    font-size: 32px;
+    background: #00ff99;
+    color: black;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+
+  #output {
+  margin-top: 50px;
+  font-size: 36px;
+  min-height: 50px;
+  white-space: pre-wrap;
+  word-break: break-word;
+  max-width: 90%;
+  display: inline-block;
+  position: relative;
+}
+
+/* Blinking cursor effect */
+#output::after {
+  content: "|";               /* The cursor symbol */
+  position: absolute;
+  right: -15px;               /* space between text and cursor */
+  animation: blink 1s infinite;
+  color: #00ff99;
+}
+
+@keyframes blink {
+  0% { opacity: 1; }
+  50% { opacity: 0; }
+  100% { opacity: 1; }
+}
+
+
+  /* 📱 Mobile adjustments */
+  @media (max-width: 600px) {
+    .input-area {
+      flex-direction: column;
+      max-width: 100%;
+      gap: 20px;
+    }
+
+    input[type="text"] {
+      font-size: 28px;
+      width: 100%;
+      padding: 18px;
+    }
+
+    button {
+      width: 100%;
+      font-size: 28px;
+      padding: 18px;
+    }
+
+    #output {
+      font-size: 32px;
+      margin-top: 30px;
+      max-width: 100%;
+    }
+  }
+
+  h1 {
+  font-size: 48px;
+  margin: 20px 0;
+}
+
+p {
+  font-size: 32px;
+  line-height: 1.6;
+  max-width: 800px;
+  margin: 10px auto;
+}
+
+  /* 📱 Extra small screens */
+  @media (max-width: 400px) {
+      h1 {
+    font-size: 38px;
+  }
+  p {
+    font-size: 20px;
+  }
+
+    input[type="text"] {
+      font-size: 26px;
+      padding: 16px;
+    }
+
+    button {
+      font-size: 26px;
+      padding: 16px;
+    }
+
+    #output {
+      font-size: 28px;
+    }
+  }
+</style>
+
+
+
+
+</head>
+<body>
+  <h1>GIFT</h1>
+  <audio id="bg-music" loop>
+  <source src="stuff/happy_birthday_song.mp3" type="audio/mpeg">
+</audio>
+
+ <img id="fun-gif" src="stuff/cat_dance.gif" alt="fun gif"
+       style="display:none; margin-top:20px; max-width:120%; height:auto;">
+
+       <div id="output"></div><br><br>
+
+
+
+
+  <div class="input-area">
+    <input type="text" id="commandInput" placeholder="Enter command...">
+    <button id="runBtn">Run</button>
+  </div>
+
+      <br><br><br><br><br><br><p>From: Blake</p>
+
+  <script>
+    const music = document.getElementById("bg-music");
+    const gif   = document.getElementById("fun-gif");
+    const input = document.getElementById("commandInput");
+    const button = document.getElementById("runBtn");
+    const output = document.getElementById("output");
+    let typing = false;
+    let context = null;
+    // after: let typing = false; let context = null;
+let gameTries = 0;
+let secretNumber = Math.floor(Math.random() * 50) + 1;
+
+
+    function typeWriter(text, callback) {
+      output.textContent = "";
+      let i = 0;
+      typing = true;
+      const interval = setInterval(() => {
+        output.textContent += text.charAt(i);
+        i++;
+        if (i >= text.length) {
+          clearInterval(interval);
+          typing = false;
+          if (callback) callback();
+        }
+      }, 50);
+    }
+
+    function handleCommand() {
+      if (typing) return;
+      const command = input.value.trim().toLowerCase();
+      input.value = "";
+      let response = "";
+
+      if (context === "joke") {
+        if (command.includes("not funny")) {
+          response = "😢 Well, comedy is subjective...";
+        } else if (command.includes("funny")) {
+          response = "😁 Glad you liked it!";
+        } else {
+          response = "🤔 I was expecting 'funny' or 'not funny'.";
+        }
+        context = null;
+        return typeWriter(response);
+      }
+
+       if (context === "code") {
+        if (command.includes("who are you?")) {
+          response = "???: I am... an old man";
+        } else if (command.includes("what are you doing here?")) {
+          response = "I can't remember...";
+           setTimeout(() => {
+            typeWriter("would you kindly turn on the light");
+          }, 3000);
+          setTimeout(() => {
+            typeWriter("it's dark in here. (type light)");
+          }, 8000);
+        } else {
+          response = "I'm sorry...I couldn't hear it, could you say something else?";
+        }
+        context = null;
+        return typeWriter(response);
+      }
+
+// --- Nếu đang trong trò chơi đoán số, xử lý số người chơi nhập ---
+if (context === "game") {
+  const guess = parseInt(command, 10);
+  if (!isNaN(guess)) {
+    if (guess < 1 || guess > 50) {
+      return typeWriter("⚠️ Nhập một số từ 1 đến 50."); 
+      // Enter a number between 1 and 50.
+    }
+    if (guess === secretNumber) {
+      context = null; // kết thúc trò chơi // end game context
+      gameTries = 0;
+      secretNumber = Math.floor(Math.random() * 50) + 1;
+      return typeWriter(`🎉 Chính xác! Bạn đã đoán số ${guess}! Gõ 'again' để chơi tiếp.`);
+      // 🎉 Correct! You guessed ${guess}! Type 'again' to play another round.
+    }
+    else if (guess < secretNumber) {
+      return typeWriter("📉 Số quá nhỏ! Thử lại nào.");
+      // Too low! Try again.
+    } else {
+      return typeWriter("📈 Số quá lớn! Thử lại nào.");
+      // Too high! Try again.
+    }
+  } else {
+    // Nếu nhập không phải số trong khi chơi
+    // Non-number while in game
+    if (command === "game") {
+      return typeWriter("Bạn đang ở trong trò chơi rồi! Hãy đoán một số từ 1 đến 50.");
+      // You're already in the game! Guess a number between 1 and 50.
+    }
+    return typeWriter("⚠️ Nhập một số từ 1 đến 50.");
+    // Enter a number between 1 and 50.
+  }
+}
+
+
+      
+
+
+      
+      switch (command) {
+        case "Sinh nhật vui vẻ": case "birthday": case "quà":
+          context = "birthday";
+       typeWriter("Chúc mừng sinh nhật Thảo~", () => {
+        setTimeout(() => { typeWriter("Hy vọng bạn thích món quà của mình~"); }, 5000);
+        setTimeout(() => { typeWriter("Nếu bạn thắc mắc sao lại có con mèo nhảy nhót hiển thị"); }, 8000);
+        setTimeout(() => { typeWriter("thì vì nó cần thiết thôi 😼"); }, 15000);
+        setTimeout(() => { typeWriter("Mình cũng làm vài lệnh vui cho bạn nghịch ở đây"); }, 18000);
+        setTimeout(() => { typeWriter("Gõ từ 'party' :3 lệnh này siêu vui luôn nè"); }, 23000);
+        });
+
+        music.play();
+        break;
+
+        
+        case "hello": case "Xin chào":
+        response = "Hello~";
+        setTimeout(() => {
+          typeWriter("Please input a command :3");
+          }, 5000);
+        break;
+
+
+        case "bye": case "goodbye": case "tạm biệt":
+        response = "👋 Goodbye! Come back soon.";
+        music.pause();
+        music.currentTime = 0;
+        // Attempt to close the window after a short delay
+       setTimeout(() => {
+          window.location.replace("https://www.youtube.com/watch?v=dQw4w9WgXcQ");
+        }, 5000);
+        break;
+
+case "game": case "trò chơi":
+if (context !== "nogame" && context !== "game") {
+  context = "nogame";
+  gameTries = 1; // lần đầu
+  return typeWriter("Không có trò chơi nào hết...");
+}
+
+
+if (context === "nogame") {
+  gameTries++;
+  if (gameTries === 2) {
+    return typeWriter("MÌNH ĐÃ NÓI LÀ KHÔNG CÓ TRÒ CHƠI RỒI!");
+  }
+  if (gameTries >= 3) {
+    context = "game";               
+    gameTries = 0;                   // reset
+    secretNumber = Math.floor(Math.random() * 50) + 1; 
+    return typeWriter("...Được rồi. Đoán một số từ 1 đến 50.");
+  }
+}
+
+
+if (context === "game") {
+  return typeWriter("Bạn đang ở trong trò chơi rồi! Hãy đoán một số từ 1 đến 50.");
+}
+break;
+
+case "again":
+if (context === "game" || context === null) {
+  context = "game";
+  gameTries = 0;
+  secretNumber = Math.floor(Math.random() * 50) + 1;
+  return typeWriter("🔄 Ván mới! Đoán một số từ 1 đến 50.");
+} else {
+  return typeWriter("Bạn chỉ có thể dùng 'again' sau khi kết thúc trò chơi.");
+}
+break;
+
+
+
+        
+        case "stop": case "dừng lại": case "thôi":
+          response = "Được rồi, tôi sẽ dừng lại 🫡";
+          music.pause();
+          music.currentTime = 0;
+          break;
+
+       case "command e":
+  response = "English commands:\n" +
+             "- birthday\n" +
+             "- hello\n" +
+             "- bye / goodbye\n" +
+             "- game\n" +
+             "- stop\n" +
+             "- joke\n" +
+             "- dwarf / chibi / small / smoll / shorty\n" +
+             "- ikemen / tall\n" +
+             "- quyen / leopard\n" +
+             "- white / light / on\n" +
+             "- black / dark / off\n" +
+             "- pink\n" +
+             "- blue\n" +
+             "- party / phe / phê / phế";
+  break;
+
+case "command v":
+  response = "Lệnh tiếng Việt:\n" +
+             "- Sinh nhật vui vẻ / quà\n" +
+             "- Xin chào\n" +
+             "- tạm biệt\n" +
+             "- trò chơi\n" +
+             "- dừng lại / thôi\n" +
+             "- lệnh (command)\n" +
+             "- cười (joke)\n" +
+             "- người lùn\n" +
+             "- cao (ikemen)\n" +
+             "- quyên / quyên nhã\n" +
+             "- trắng\n" +
+             "- đen\n" +
+             "- hồng / xoi\n" +
+             "- biển / xanh nhạt\n" +
+             "- party / phe / phê / phế";
+  break;
+
+
+        case "joke":
+          response = "Why don’t programmers like nature?";
+          context = "joke";
+          setTimeout(() => {
+            typeWriter("Too many bugs.😂 \n(Did you find it funny?)")
+          }, 5000);
+          break;
+
+        case "dwarf": case "chibi": case "small": case "smoll": case "shorty": case "người lùn":
+          response = "hello shorty~";
+          context = "dwarf";
+          break;
+
+        case "ikemen":  case "tall":
+          response = "You are not tall enought to be an ikemen~ :3";
+          context = "tall";
+          break;
+
+
+        case "anyone there?":
+        response = "???: I am here";
+        music.pause();
+          music.currentTime = 0;
+        context = "code";
+        break;
+
+        case "quyen": case "quyên": case "quyên nhã": case "leopard":
+        response = "for Thao: quyên đây, quyên đây, chị êu nhớ quyên rùi à :3";
+         setTimeout(() => {
+            typeWriter("for slug: đã ai làm gì đou, đã chạm vào đou, ka đi ra đi");
+            }, 7000); 
+        context = "leopard";
+        break;
+
+
+         case "white": case "light": case "on": case "trắng": 
+        document.body.style.background = "white";
+        document.body.style.color = "black";
+        
+        if (context === "code") {
+          response = "💡 Thank you... I can finally see now.";
+          context = null; // reset after special response
+            setTimeout(() => {
+            typeWriter("(The old man is gone)");
+            }, 6000); 
+        } else {
+          response = "🎨 Background changed to white!";
+        }
+        break;
+
+
+        case "black": case "dark": case "off": case "đen":
+        document.body.style.background = "black";
+        document.body.style.color = "#00ff99";
+        response = "🎨 Background changed to black!";
+        break;
+
+        case "pink": case "hồng": case "xoi":
+        document.body.style.background = "pink";
+        document.body.style.color = "black";
+        response = "🎨 Background changed to pink!";
+        setTimeout(() => {
+            typeWriter("Hope you like it~ 😉");
+            }, 6000); 
+        break;
+
+        case "blue": case "biển": case "xanh nhạt":
+        document.body.style.background = "#ADD8E6";
+        document.body.style.color = "black";
+        response = "🎨 Background changed to light blue!";
+        setTimeout(() => {
+            typeWriter("Hope you like it~ 😉");
+            }, 6000); 
+        break;
+
+       case "party": case "phe": case "phê": case "phế":
+  if (context === "birthday") {
+    response = "PARTY MODE ACTIVATED!";
+    typeWriter(response, () => {
+      const originalBg = document.body.style.background;
+
+      let disco = setInterval(() => {
+        document.body.style.background =
+          "#" + Math.floor(Math.random() * 16777215).toString(16);
+      }, 500);
+
+      setTimeout(() => {
+        clearInterval(disco);
+        document.body.style.background = originalBg || "black";
+      }, 20000);
+
+      setTimeout(() => {typeWriter("Bạn có thể bật nó lại nếu muốn nhưng");}, 25000);
+      setTimeout(() => {typeWriter("bạn cũng có thể gõ 'command v' để xem danh sách lệnh (tiếng Việt)");}, 28000);
+      setTimeout(() => {typeWriter("hoặc gõ 'command e' để xem English commands.");}, 31000);
+      setTimeout(() => {typeWriter("trước đó, mình muốn bạn gõ 'quyên' vì cô ấy có tin nhắn cho bạn và slug. :3");}, 34000);
+      });
+    } else {
+      response = "PARTY MODE ACTIVATED!";
+      typeWriter(response, () => {
+        let disco = setInterval(() => {
+          document.body.style.background =
+            "#" + Math.floor(Math.random() * 16777215).toString(16);
+        }, 500);
+
+        setTimeout(() => {
+          clearInterval(disco);
+          document.body.style.background = "black"; // reset to black if not from birthday
+        }, 20000);
+      });
+    }
+  break;
+        default:
+          response = "❌ Unknown command. Try again.";
+      }
+
+      typeWriter(response);
+    }
+
+    // Show/hide gif when music plays/pauses
+    music.addEventListener("play", () => gif.style.display = "block");
+    music.addEventListener("pause", () => gif.style.display = "none");
+
+    button.addEventListener("click", handleCommand);
+    input.addEventListener("keypress", (e) => {
+      if (e.key === "Enter") handleCommand();
+    });
+  </script>
+
+</body>
+</html>
